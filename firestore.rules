@@ -1,0 +1,78 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: settings
+    // Document ID: {documentId}
+    // Fields:
+    //   - drFarooqImageBase64: string (optional) - Base64 encoded image
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email == "shams96@yahoo.com" && 
+             request.auth.token.email_verified == true;
+    }
+
+    function isValidSiteSettings(data) {
+      return data.keys().hasOnly(['drFarooqImageBase64']) &&
+             (!('drFarooqImageBase64' in data) || data.drFarooqImageBase64 is string);
+    }
+
+    function isValidPatientInquiry(data) {
+      return data.keys().hasAll(['zipCode', 'routedLocation', 'age', 'gender', 'condition', 'firstName', 'lastName', 'phone', 'createdAt']) &&
+             data.zipCode is string && data.zipCode.size() > 0 && data.zipCode.size() <= 10 &&
+             data.routedLocation is string && data.routedLocation.size() > 0 && data.routedLocation.size() <= 100 &&
+             data.age is number && data.age >= 18 && data.age <= 120 &&
+             data.gender is string && data.gender.size() > 0 && data.gender.size() <= 20 &&
+             data.condition is string && data.condition.size() > 0 && data.condition.size() <= 100 &&
+             data.firstName is string && data.firstName.size() > 0 && data.firstName.size() <= 50 &&
+             data.lastName is string && data.lastName.size() > 0 && data.lastName.size() <= 50 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 20 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidSponsorInquiry(data) {
+      return data.keys().hasAll(['fullName', 'company', 'email', 'phone', 'therapeuticArea', 'message', 'createdAt']) &&
+             data.fullName is string && data.fullName.size() > 0 && data.fullName.size() <= 100 &&
+             data.company is string && data.company.size() > 0 && data.company.size() <= 100 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 20 &&
+             data.therapeuticArea is string && data.therapeuticArea.size() > 0 && data.therapeuticArea.size() <= 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 2000 &&
+             data.createdAt is timestamp;
+    }
+
+    match /settings/{documentId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidSiteSettings(request.resource.data);
+      allow update: if isAdmin() && isValidSiteSettings(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /patientInquiries/{inquiryId} {
+      allow read: if isAdmin();
+      allow create: if isValidPatientInquiry(request.resource.data);
+      allow update: if isAdmin() && isValidPatientInquiry(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    match /sponsorInquiries/{inquiryId} {
+      allow read: if isAdmin();
+      allow create: if isValidSponsorInquiry(request.resource.data);
+      allow update: if isAdmin() && isValidSponsorInquiry(request.resource.data);
+      allow delete: if isAdmin();
+    }
+  }
+}

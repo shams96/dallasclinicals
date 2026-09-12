@@ -1,0 +1,61 @@
+{
+  "entities": {
+    "SiteSettings": {
+      "title": "Site Settings",
+      "description": "Global settings for the website, like images and text.",
+      "type": "object",
+      "properties": {
+        "drFarooqImageBase64": {
+          "type": "string",
+          "description": "Base64 encoded image of Dr. Farooq"
+        }
+      }
+    },
+    "PatientInquiry": {
+      "title": "Patient Inquiry",
+      "description": "An inquiry submitted by a patient to check eligibility.",
+      "type": "object",
+      "properties": {
+        "zipCode": { "type": "string" },
+        "routedLocation": { "type": "string" },
+        "age": { "type": "number" },
+        "gender": { "type": "string" },
+        "condition": { "type": "string" },
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "phone": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["zipCode", "routedLocation", "age", "gender", "condition", "firstName", "lastName", "phone", "createdAt"]
+    },
+    "SponsorInquiry": {
+      "title": "Sponsor Inquiry",
+      "description": "An inquiry submitted by a sponsor.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "company": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "therapeuticArea": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "company", "email", "phone", "therapeuticArea", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/settings/{documentId}": {
+      "schema": "SiteSettings",
+      "description": "Stores site settings like the homepage configuration."
+    },
+    "/patientInquiries/{inquiryId}": {
+      "schema": "PatientInquiry",
+      "description": "Stores patient eligibility inquiries."
+    },
+    "/sponsorInquiries/{inquiryId}": {
+      "schema": "SponsorInquiry",
+      "description": "Stores sponsor inquiries."
+    }
+  }
+}
