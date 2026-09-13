@@ -1,10 +1,16 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import React, { useState } from "react";
 import { MapPin, User, Activity, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function Eligibility() {
+  const reduceMotion = useReducedMotion();
+  // Critically damped (bounce: 0) — settles smoothly, no overshoot, since
+  // these transitions aren't gesture/momentum-driven.
+  const stepTransition = reduceMotion
+    ? { duration: 0.15 }
+    : { type: "spring" as const, bounce: 0, duration: 0.4 };
   const [step, setStep] = useState(1);
   const [zipCode, setZipCode] = useState("");
   const [routedLocation, setRoutedLocation] = useState("");
@@ -81,9 +87,10 @@ export default function Eligibility() {
 
         <div className="p-8 md:p-12">
           {isSubmitted ? (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.9 }}
+            <motion.div
+              initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
+              transition={stepTransition}
               className="text-center py-8"
             >
               <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
@@ -102,9 +109,10 @@ export default function Eligibility() {
               <input type="hidden" name="_captcha" value="false" />
 
               {step === 1 && (
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
+                <motion.div
+                  initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
                   animate={{ opacity: 1, x: 0 }}
+                  transition={stepTransition}
                   className="space-y-6"
                 >
                   <h3 className="text-xl font-bold text-brand-900 mb-6 flex items-center">
@@ -126,7 +134,7 @@ export default function Eligibility() {
                     <p className="text-xs text-gray-500 mt-2">Used to route you to the closest facility (Plano or Greenville).</p>
                   </div>
 
-                  <button type="submit" className="w-full mt-8 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 transition-colors flex items-center justify-center space-x-2">
+                  <button type="submit" className="w-full mt-8 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 active:scale-[0.98] transition-[background-color,transform] duration-150 flex items-center justify-center space-x-2">
                     <span>Continue</span>
                     <ArrowRight className="w-5 h-5" />
                   </button>
@@ -134,9 +142,10 @@ export default function Eligibility() {
               )}
 
               {step === 2 && (
-                <motion.div 
-                  initial={{ opacity: 0, x: 20 }}
+                <motion.div
+                  initial={{ opacity: 0, x: reduceMotion ? 0 : 20 }}
                   animate={{ opacity: 1, x: 0 }}
+                  transition={stepTransition}
                   className="space-y-6"
                 >
                   <div className="bg-accent-50 border border-accent-200 p-4 rounded-lg mb-6 flex items-start">
@@ -176,10 +185,10 @@ export default function Eligibility() {
                   </div>
 
                   <div className="flex space-x-4 mt-8">
-                    <button type="button" disabled={isSubmitting} onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-4 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors">
+                    <button type="button" disabled={isSubmitting} onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-4 rounded-lg hover:bg-gray-200 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 transition-[background-color,transform] duration-150">
                       Back
                     </button>
-                    <button type="submit" disabled={isSubmitting} className="w-2/3 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 disabled:opacity-70 transition-colors flex items-center justify-center space-x-2">
+                    <button type="submit" disabled={isSubmitting} className="w-2/3 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 transition-[background-color,transform] duration-150 flex items-center justify-center space-x-2">
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />

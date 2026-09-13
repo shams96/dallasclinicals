@@ -70,7 +70,7 @@ export default function Layout() {
               ))}
               <Link
                 to="/check-eligibility"
-                className="bg-brand-900 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-brand-800 transition-all shadow-md hover:shadow-lg flex items-center group"
+                className="bg-brand-900 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-brand-800 active:scale-95 transition-all shadow-md hover:shadow-lg flex items-center group"
               >
                 Check Eligibility
                 <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -106,7 +106,7 @@ export default function Layout() {
               <Link
                 to="/check-eligibility"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block mt-4 w-full text-center bg-brand-900 text-white px-5 py-3 rounded-md text-base font-medium hover:bg-brand-800"
+                className="block mt-4 w-full text-center bg-brand-900 text-white px-5 py-3 rounded-md text-base font-medium hover:bg-brand-800 active:scale-95 transition-transform"
               >
                 Check Eligibility
               </Link>

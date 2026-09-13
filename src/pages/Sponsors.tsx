@@ -1,10 +1,11 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Building2, Users, Target, Activity, Send, CheckCircle, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function Sponsors() {
+  const reduceMotion = useReducedMotion();
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -113,9 +114,10 @@ export default function Sponsors() {
           
           <div className="p-8">
             {isSubmitted ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
+              <motion.div
+                initial={{ opacity: 0, scale: reduceMotion ? 1 : 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
+                transition={reduceMotion ? { duration: 0.15 } : { type: "spring", bounce: 0, duration: 0.4 }}
                 className="text-center py-12"
               >
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -167,7 +169,7 @@ export default function Sponsors() {
                   <textarea required name="message" rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" placeholder="Brief description of the study phase and requirements..."></textarea>
                 </div>
 
-                <button type="submit" disabled={isSubmitting} className="w-full bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 disabled:opacity-70 transition-colors flex items-center justify-center space-x-2">
+                <button type="submit" disabled={isSubmitting} className="w-full bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 transition-[background-color,transform] duration-150 flex items-center justify-center space-x-2">
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin" />
