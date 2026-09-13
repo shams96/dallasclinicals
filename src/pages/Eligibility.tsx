@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { MapPin, User, Activity, ArrowRight, CheckCircle } from "lucide-react";
+import { MapPin, User, Activity, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -9,6 +9,7 @@ export default function Eligibility() {
   const [zipCode, setZipCode] = useState("");
   const [routedLocation, setRoutedLocation] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,45 +22,41 @@ export default function Eligibility() {
       }
       setStep(2);
     } else {
-      // Final submit
+      // Final submit — contact info only, no medical/demographic fields.
+      // Full intake (age, condition, etc.) happens live on the callback.
       const formData = new FormData(e.target as HTMLFormElement);
       const data = Object.fromEntries(formData.entries());
-      
-      // Add the zip code and routed location to the data since they are from step 1
+
       data.zipCode = zipCode;
       data.routedLocation = routedLocation;
 
+      setIsSubmitting(true);
       try {
-        // 1. Save to Firebase
         await addDoc(collection(db, "patientInquiries"), {
           zipCode: data.zipCode,
           routedLocation: data.routedLocation,
-          age: Number(data.age),
-          gender: data.gender,
-          condition: data.condition,
           firstName: data.firstName,
           lastName: data.lastName,
           phone: data.phone,
+          email: data.email,
           createdAt: serverTimestamp()
         });
 
-        // 2. Send Email via FormSubmit
-        await fetch("https://formsubmit.co/ajax/info@dallasclinicals.com", {
+        await fetch(import.meta.env.VITE_NOTIFY_URL, {
           method: "POST",
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            _subject: "New Patient Eligibility Submission",
+            _subject: "New Patient Callback Request",
             ...data
           })
         });
-        
+
         setIsSubmitted(true);
       } catch (error) {
         console.error("Error submitting form:", error);
         setIsSubmitted(true); // Show success anyway for UX
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -129,22 +126,6 @@ export default function Eligibility() {
                     <p className="text-xs text-gray-500 mt-2">Used to route you to the closest facility (Plano or Greenville).</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Age</label>
-                      <input required type="number" name="age" min="18" max="100" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" placeholder="18+" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                      <select required name="gender" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all">
-                        <option value="">Select...</option>
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                  </div>
-
                   <button type="submit" className="w-full mt-8 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 transition-colors flex items-center justify-center space-x-2">
                     <span>Continue</span>
                     <ArrowRight className="w-5 h-5" />
@@ -167,21 +148,11 @@ export default function Eligibility() {
 
                   <h3 className="text-xl font-bold text-brand-900 mb-6 flex items-center">
                     <Activity className="w-6 h-6 mr-2 text-accent-600" />
-                    Medical Interest
+                    Contact Info
                   </h3>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Primary Condition of Interest</label>
-                    <select required name="condition" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all">
-                      <option value="">Select a condition...</option>
-                      <option>Healthy Volunteer (Phase I)</option>
-                      <option>Obesity / Weight Management</option>
-                      <option>Type 2 Diabetes</option>
-                      <option>Asthma / COPD</option>
-                      <option>Skin Condition (Psoriasis, Eczema)</option>
-                      <option>Other</option>
-                    </select>
-                  </div>
+                  <p className="text-sm text-gray-500 -mt-4">
+                    A clinical coordinator will call you to complete the rest of your intake.
+                  </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -199,13 +170,27 @@ export default function Eligibility() {
                     <input required type="tel" name="phone" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input required type="email" name="email" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" />
+                  </div>
+
                   <div className="flex space-x-4 mt-8">
-                    <button type="button" onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-4 rounded-lg hover:bg-gray-200 transition-colors">
+                    <button type="button" disabled={isSubmitting} onClick={() => setStep(1)} className="w-1/3 bg-gray-100 text-gray-700 font-bold py-4 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition-colors">
                       Back
                     </button>
-                    <button type="submit" className="w-2/3 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 transition-colors flex items-center justify-center space-x-2">
-                      <span>Submit Securely</span>
-                      <CheckCircle className="w-5 h-5" />
+                    <button type="submit" disabled={isSubmitting} className="w-2/3 bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 disabled:opacity-70 transition-colors flex items-center justify-center space-x-2">
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>Submitting...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Submit Securely</span>
+                          <CheckCircle className="w-5 h-5" />
+                        </>
+                      )}
                     </button>
                   </div>
                 </motion.div>

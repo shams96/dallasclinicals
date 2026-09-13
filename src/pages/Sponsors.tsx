@@ -1,18 +1,20 @@
 import { motion } from "framer-motion";
-import { Building2, Users, Target, Activity, Send, CheckCircle } from "lucide-react";
+import { Building2, Users, Target, Activity, Send, CheckCircle, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
 export default function Sponsors() {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const formData = new FormData(e.target as HTMLFormElement);
     const data = Object.fromEntries(formData.entries());
 
+    setIsSubmitting(true);
     try {
       // 1. Save to Firebase
       await addDoc(collection(db, "sponsorInquiries"), {
@@ -25,13 +27,10 @@ export default function Sponsors() {
         createdAt: serverTimestamp()
       });
 
-      // 2. Send Email via FormSubmit
-      await fetch("https://formsubmit.co/ajax/info@dallasclinicals.com", {
+      // 2. Send notification email
+      await fetch(import.meta.env.VITE_NOTIFY_URL, {
         method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           _subject: "New Protocol Implementation Inquiry",
           ...data
@@ -41,6 +40,8 @@ export default function Sponsors() {
     } catch (error) {
       console.error("Error submitting inquiry:", error);
       setIsSubmitted(true); // Show success anyway for UX
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -166,9 +167,18 @@ export default function Sponsors() {
                   <textarea required name="message" rows={4} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all" placeholder="Brief description of the study phase and requirements..."></textarea>
                 </div>
 
-                <button type="submit" className="w-full bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 transition-colors flex items-center justify-center space-x-2">
-                  <span>Submit Inquiry to Director</span>
-                  <Send className="w-4 h-4" />
+                <button type="submit" disabled={isSubmitting} className="w-full bg-brand-900 text-white font-bold py-4 rounded-lg hover:bg-brand-800 disabled:opacity-70 transition-colors flex items-center justify-center space-x-2">
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Submit Inquiry to Director</span>
+                      <Send className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </form>
             )}
