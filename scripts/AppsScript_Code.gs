@@ -12,6 +12,12 @@ const NOTIFY_EMAIL = 'shams.islam2@gmail.com';
 function doPost(e) {
   const data = JSON.parse(e.postData.contents);
 
+  // Abort if honeypot field is filled
+  if (data._honey) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   MailApp.sendEmail({
     to: NOTIFY_EMAIL,
     subject: data._subject || 'New Dallas Clinicals inquiry',
