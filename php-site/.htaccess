@@ -1,0 +1,9 @@
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+Options -Indexes
+
+<IfModule mod_dir.c>
+  DirectoryIndex index.php
+</IfModule>

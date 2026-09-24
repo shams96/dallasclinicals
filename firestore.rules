@@ -10,6 +10,9 @@ service cloud.firestore {
     // Fields:
     //   - drFarooqImageBase64: string (optional) - Base64 encoded image
     //
+    // Collection: patientInquiries — contact info only, no medical/demographic
+    // fields (age/gender/condition intake happens live on the callback).
+    //
     // ===============================================================
 
     // ===============================================================
@@ -31,15 +34,13 @@ service cloud.firestore {
     }
 
     function isValidPatientInquiry(data) {
-      return data.keys().hasAll(['zipCode', 'routedLocation', 'age', 'gender', 'condition', 'firstName', 'lastName', 'phone', 'createdAt']) &&
+      return data.keys().hasAll(['zipCode', 'routedLocation', 'firstName', 'lastName', 'phone', 'email', 'createdAt']) &&
              data.zipCode is string && data.zipCode.size() > 0 && data.zipCode.size() <= 10 &&
              data.routedLocation is string && data.routedLocation.size() > 0 && data.routedLocation.size() <= 100 &&
-             data.age is number && data.age >= 18 && data.age <= 120 &&
-             data.gender is string && data.gender.size() > 0 && data.gender.size() <= 20 &&
-             data.condition is string && data.condition.size() > 0 && data.condition.size() <= 100 &&
              data.firstName is string && data.firstName.size() > 0 && data.firstName.size() <= 50 &&
              data.lastName is string && data.lastName.size() > 0 && data.lastName.size() <= 50 &&
              data.phone is string && data.phone.size() > 0 && data.phone.size() <= 20 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 100 &&
              data.createdAt is timestamp;
     }
 
