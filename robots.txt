@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# AI answer-engine crawlers — explicitly allowed so Dallas Clinicals can
+# surface in AI Overviews / ChatGPT / Perplexity answers (2026 GEO/AEO
+# guidance). Many sites block these by accident via a blanket disallow.
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+Sitemap: https://dallasclinicals.com/sitemap.xml

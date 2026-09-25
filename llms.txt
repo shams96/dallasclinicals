@@ -1,0 +1,30 @@
+# Dallas Clinicals
+
+> Dallas Clinicals is a clinical research center with two DFW facilities —
+> Plano (Collin County) and Greenville (Hunt County) — running Phase I-IV
+> trials under Principal Investigator Hassan Farooq, MD. It recruits patient
+> volunteers and partners with pharmaceutical sponsors and CROs.
+
+Key facts:
+- Locations: Plano, TX (Collin County) and Greenville, TX (Hunt County).
+- Principal Investigator: Hassan Farooq, MD.
+- Director of Research: Shams Islam.
+- Therapeutic areas: Dermatology, Endocrinology, Metabolism (GLP-1/Obesity),
+  Respiratory, Infectious Diseases.
+- Phone: 214-714-3597. Email: info@dallasclinicals.com.
+- FDA-compliant, GCP-adherent, IRB-overseen trials.
+
+## Pages
+
+- [Home](https://dallasclinicals.com/): Overview of the Plano/Greenville
+  dual-site model and PI credentials.
+- [For Sponsors](https://dallasclinicals.com/sponsors.php): Recruitment
+  advantages for pharmaceutical sponsors and CROs, protocol inquiry form.
+- [For Patients](https://dallasclinicals.com/patients.php): What clinical
+  trial phases (I-IV) mean, patient safety and IRB oversight.
+- [Locations](https://dallasclinicals.com/locations.php): Plano and
+  Greenville facility addresses, hours, and contact details.
+- [About](https://dallasclinicals.com/about.php): Mission, leadership
+  (Hassan Farooq, MD; Shams Islam).
+- [Check Eligibility](https://dallasclinicals.com/check-eligibility.php):
+  Patient intake form that routes inquiries to the nearest facility.

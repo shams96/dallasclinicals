@@ -1,0 +1,104 @@
+/*
+ * Replaces framer-motion's initial/animate (load-in) and whileInView
+ * (scroll-reveal) behavior from the React app with native CSS, per
+ * https://web.dev scroll-driven-animations guidance. No JS animation
+ * library is shipped.
+ */
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-x {
+  from { opacity: 0; transform: translateX(var(--fade-x, 20px)); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-in-scale {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Load-in: runs immediately (hero text, etc.) */
+.anim-in {
+  animation: fade-in-up 0.5s ease-out both;
+}
+.anim-in-x {
+  animation: fade-in-x 0.5s ease-out both;
+}
+.anim-in-scale {
+  animation: fade-in-scale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+
+/* Scroll-reveal, in priority order:
+   1. Native animation-timeline: view() — no JS at all (~85-90% support,
+      2026 web-trends guidance). Stagger via --reveal-i (set inline).
+   2. Fallback for browsers without it: starts hidden via .reveal-js-fallback
+      (added by main.js only when the native feature is unsupported),
+      IntersectionObserver in main.js then adds .is-visible. */
+@keyframes reveal-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes reveal-in-x {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--reveal-i, 0) * 6%) entry 85%;
+    }
+    .reveal.reveal-x {
+      animation-name: reveal-in-x;
+    }
+  }
+}
+
+/* JS fallback path (older Safari/Firefox without scroll-driven animations) */
+.reveal-js-fallback {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+  transition-delay: calc(var(--reveal-i, 0) * 0.1s);
+}
+.reveal-js-fallback.reveal-x {
+  transform: translateX(-20px);
+}
+.reveal-js-fallback.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-in, .anim-in-x, .anim-in-scale {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-js-fallback {
+    transition-duration: 0.15s;
+  }
+}
+
+/* §4 Typography as the primary interface */
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* §5 Lean delivery: drop decorative hero photography for users who've
+   asked their browser/OS to minimize data usage. */
+@media (prefers-reduced-data: reduce) {
+  .bg-photo {
+    background-image: none !important;
+  }
+}
